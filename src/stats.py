@@ -9,3 +9,8 @@ def get_top_tracks(client, limit, time_range):
     items = response.get("items")
     top_tracks = [item["name"] for item in items]
     return top_tracks
+
+def get_recently_played(client, limit):
+    response = client.current_user_recently_played(limit=limit)
+    items = response.get("items")
+    return items

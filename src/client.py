@@ -9,7 +9,7 @@ def get_client():
     client_id = os.getenv("SPOTIFY_CLIENT_ID")
     client_secret = os.getenv("SPOTIFY_CLIENT_SECRET")
     client_rd_uri = os.getenv("SPOTIFY_REDIRECT_URI")
-    scope = "user-read-private user-top-read"
+    scope = "user-read-private user-top-read user-read-recently-played"
     auth = SpotifyOAuth(
         client_id=client_id,
         client_secret=client_secret,
