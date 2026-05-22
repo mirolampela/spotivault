@@ -1,7 +1,9 @@
 from src.client import get_client
 from src.stats import get_top_artists, get_top_tracks, get_recently_played
 from src.display import print_top_artists
-from src.database import init_db, save_recently_played
+from src.database import init_db, save_recently_played, save_history
+from src.importer import import_history, import_all_history
+import glob
 
 init_db()
 
@@ -19,4 +21,6 @@ top_tracks_long = get_top_tracks(client, 5, "long_term")
 user_name =  user.get("display_name")
 rec = get_recently_played(client, 50)
 
-save_recently_played(rec)
+history = import_all_history(r"C:/Users/mirol/Documents/Spotify Extended Streaming History")
+save_history(history)
+#save_recently_played(rec)

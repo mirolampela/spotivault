@@ -65,10 +65,37 @@ def save_recently_played(items):
         cur.execute("INSERT OR IGNORE INTO albums (name, artist_id) VALUES (?, ?)", (album_name, artist_id))
         album_id = cur.execute("SELECT id FROM albums WHERE name = ?", (album_name,)).fetchone()[0]
         cur.execute("INSERT OR IGNORE INTO tracks (name, track_uri, artist_id, album_id) VALUES (?, ?, ?, ?)", (track_name, track_uri, artist_id, album_id))
-        track_id = cur.execute("SELECT id FROM tracks WHERE name = ?", (track_name,)).fetchone()[0]
+        track_id = cur.execute("SELECT id FROM tracks WHERE track_uri = ?", (track_uri,)).fetchone()[0]
         cur.execute("INSERT OR IGNORE INTO plays (track_id, timestamp, skipped) VALUES (?, ?, ?)", (track_id, timestamp, skipped))
         if cur.rowcount > 0: new_plays += 1
 
     con.commit()
     print(f"Saved {new_plays} new plays")
+    con.close()
+
+def save_history(items):
+    con, cur = get_connection()
+
+    for item in items:
+        artist_name = item["master_metadata_album_artist_name"]
+        album_name = item["master_metadata_album_album_name"]
+        track_name = item["master_metadata_track_name"]
+        track_uri = item["spotify_track_uri"]
+        timestamp = item["ts"]
+        ms_played = item["ms_played"]
+        skipped = item["skipped"]
+
+        existing = cur.execute("SELECT id FROM artists WHERE name = ?", (artist_name,)).fetchone()
+        if not existing:
+            cur.execute("INSERT INTO artists (name, artist_uri) VALUES (?, ?)", (artist_name, None))
+            artist_id = cur.lastrowid
+        else:
+            artist_id = existing[0]
+        cur.execute("INSERT OR IGNORE INTO albums (name, artist_id) VALUES (?, ?)", (album_name, artist_id))
+        album_id = cur.execute("SELECT id FROM albums WHERE name = ?", (album_name,)).fetchone()[0]
+        cur.execute("INSERT OR IGNORE INTO tracks (name, track_uri, artist_id, album_id) VALUES (?, ?, ?, ?)", (track_name, track_uri, artist_id, album_id))
+        track_id = cur.execute("SELECT id FROM tracks WHERE track_uri = ?", (track_uri,)).fetchone()[0]
+        cur.execute("INSERT OR IGNORE INTO plays (track_id, timestamp, ms_played, skipped) VALUES (?, ?, ?, ?)", (track_id, timestamp, ms_played, skipped))
+
+    con.commit()
     con.close()
